@@ -87,3 +87,6 @@ Before deploying anywhere public:
 - Set `DJANGO_ALLOWED_HOSTS` to your real domain(s).
 - Switch from SQLite to Postgres/MySQL for anything beyond light personal use.
 - Serve static files properly (e.g. WhiteNoise or a CDN) instead of Django's dev server.
+
+## License
+MIT License
