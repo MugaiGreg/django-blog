@@ -1,0 +1,41 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+    <article>
+        <h1>{{ post.title }}</h1>
+        <h6 class="text-muted">By {{ post.author.username }} on {{ post.created_at|date:"N j, Y" }}</h6>
+        <p class="mt-4" style="white-space: pre-wrap;">{{ post.content }}</p>
+
+        {% if user.is_authenticated and user == post.author %}
+            <a href="{% url 'post_update' post.slug %}" class="btn btn-secondary btn-sm">Edit</a>
+            <a href="{% url 'post_delete' post.slug %}" class="btn btn-danger btn-sm">Delete</a>
+        {% endif %}
+    </article>
+
+    <hr class="my-4">
+
+    <h4>Comments ({{ comments.count }})</h4>
+    {% for comment in comments %}
+        <div class="mb-2 p-2 border-bottom">
+            <strong>{{ comment.author.username }}</strong>
+            <small class="text-muted">{{ comment.created_at|date:"N j, Y H:i" }}</small>
+            <p>{{ comment.body }}</p>
+        </div>
+    {% empty %}
+        <p class="text-muted">No comments yet.</p>
+    {% endfor %}
+
+    {% if user.is_authenticated %}
+        <form method="post" action="{% url 'add_comment' post.slug %}" class="mt-3">
+            {% csrf_token %}
+            {{ comment_form.body }}
+            <button type="submit" class="btn btn-primary btn-sm mt-2">Add comment</button>
+        </form>
+    {% else %}
+        <p><a href="{% url 'login' %}">Log in</a> to leave a comment.</p>
+    {% endif %}
+
+    <a href="{% url 'post_list' %}" class="d-block mt-4">&larr; Back to all posts</a>
+{% endblock %}
