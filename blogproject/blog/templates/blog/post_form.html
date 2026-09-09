@@ -4,11 +4,22 @@
 
 {% block content %}
     <h1>{% if object %}Edit Post{% else %}New Post{% endif %}</h1>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="mb-3">
             <label class="form-label">Title</label>
             {{ form.title }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Category</label>
+            {{ form.category }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Featured image</label>
+            {% if object.image %}
+                <img src="{{ object.image.url }}" alt="" class="current-image mb-2">
+            {% endif %}
+            {{ form.image }}
         </div>
         <div class="mb-3">
             <label class="form-label">Content</label>

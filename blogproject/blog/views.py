@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import (
@@ -13,7 +14,7 @@ from django.views.generic import (
 )
 
 from .forms import CommentForm, PostForm
-from .models import Post
+from .models import Category, Post
 
 
 class PostListView(ListView):
@@ -23,7 +24,26 @@ class PostListView(ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        return Post.objects.filter(published=True)
+        queryset = Post.objects.filter(published=True)
+
+        query = self.request.GET.get('q', '').strip()
+        if query:
+            queryset = queryset.filter(
+                Q(title__icontains=query) | Q(content__icontains=query)
+            )
+
+        category_slug = self.request.GET.get('category', '').strip()
+        if category_slug:
+            queryset = queryset.filter(category__slug=category_slug)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        context['query'] = self.request.GET.get('q', '')
+        context['active_category'] = self.request.GET.get('category', '')
+        return context
 
 
 class PostDetailView(DetailView):
